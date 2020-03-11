@@ -1,0 +1,212 @@
+---
+title: "Calculating missing values"
+author: |
+  | McEwen Khundi
+  |
+  | London School of Hygiene & Tropical Medicine, London, UK
+  | Malawi-Liverpool-Wellcome Clinical Research Programme, Blantyre, Malawi
+  |
+date: |
+  | `r format(Sys.time(), "%B %d, %Y")`
+  |
+  | Table of Contents:
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    theme: cosmo
+    highlight: espresso
+    toc: yes
+subtitle: Spatially targeted systematic review
+---
+
+<br>
+
+## 1. Backgound
+
+
+<br>
+
+## 2. Set-up
+
+Load all required packages for analysis.
+
+```{r setup, echo=FALSE, include=FALSE, message=FALSE, comment=NA, warning=FALSE}
+library(tidyverse)    #for data manipulation
+library(pmthemes)     #for ggplot themes
+library(knitr)        #for tables
+
+```
+
+<br>
+
+## 3. Define functions
+
+```{r import}
+
+prop_CI_to_n <- function(prop,c1,c2){
+  n = round((prop*(1-prop))/(((c2-c1)/4)^2))
+}
+
+prop_std_error <- function(prop,n){
+  std_er = ((prop*(1-prop)/n))^(1/2)
+}
+
+prop_to_CI <- function(prop, prop_stderror){
+  low_ci = prop - 2*prop_stderror
+  upper_ci = prop + 2*prop_stderror
+  list(low_ci,upper_ci)
+}
+
+poisson_to_prop <- function(x1,x2){
+  prop = x1/(x1 + x2)
+}
+
+
+```
+
+<br>
+
+## 4. Goswami2012 paper HIV
+
+```{r }
+N_total = prop_CI_to_n(0.004,0.005,0.003)
+n_cases = round(N_total*0.004)
+glue::glue("Total number of cases N:{N_total} ", "Number of positive cases n:{n_cases}")
+```
+<br>
+
+## 5. Goswami2012 paper TB
+
+```{r }
+N_total = prop_CI_to_n(0.06,0.066,0.056)
+n_cases = round(N_total*0.06)
+glue::glue("Total number of cases N:{N_total} ", "Number of positive cases n:{n_cases}")
+```
+<br>
+
+## 6. Fatima2016 paper TB
+
+```{r }
+prop = poisson_to_prop(100384,108341)
+prop
+
+prop_std = prop_std_error(prop, (100384 +108341))
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std} the test statistic {(0.5-prop)/prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop: {1/(prop)-1}, lowerCI: {1/(low_upper_ci[[1]])-1}, upperCI: {1/(low_upper_ci[[2]])-1}")
+```
+<br>
+
+## 7. Barreto2015 Leprosy
+
+```{r }
+
+#Start with the hotspot children
+prop = 11/134
+
+prop_std = prop_std_error(prop, 134)
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop%: {100*prop}, lowerCI%: {100*low_upper_ci[[1]]}, upperCI%: {100*low_upper_ci[[2]]}")
+
+#Second with the randomly selected children children
+prop = 63/1592
+
+prop_std = prop_std_error(prop, 1592)
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop%: {100*prop}, lowerCI%: {100*low_upper_ci[[1]]}, upperCI%: {100*low_upper_ci[[2]]}")
+
+
+```
+
+<br>
+
+## 6. Srivastava 2009  paper Malaria
+
+```{r }
+prop = poisson_to_prop(90829,96042)
+prop
+
+prop_std = prop_std_error(prop, (90829 +96042))
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std} the test statistic {(0.5-prop)/prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop: {1/(prop)-1}, lowerCI: {1/(low_upper_ci[[1]])-1}, upperCI: {1/(low_upper_ci[[2]])-1}")
+```
+
+<br>
+
+## 8. Morris 2018 Malaria
+
+```{r }
+#Start with the control clusters
+prop = 52/12307
+
+prop_std = prop_std_error(prop, 12307)
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop per 1000: {1000*prop}, lowerCI per 1000: {1000*low_upper_ci[[1]]}, upperCI per 1000: {1000*low_upper_ci[[2]]}")
+
+#The intervention clusters
+prop = 43/10944
+
+prop_std = prop_std_error(prop, 10944)
+prop_std
+
+glue::glue("The prop:{prop} prop std error: {prop_std}")
+
+low_upper_ci = prop_to_CI(prop,prop_std)
+
+
+glue::glue("The prop per 1000: {1000*prop}, lowerCI per 1000: {1000*low_upper_ci[[1]]}, upperCI per 1000: {1000*low_upper_ci[[2]]}")
+
+
+```
+
+
+<br>
+
+## X. Reproducibility
+
+This reproduction of the analysis was run by: 
+
+```{r sysinfo, echo=FALSE, message=FALSE, comment=NA, warning=FALSE}
+
+sysinfo <- Sys.info()
+
+sysinfo <- data.frame(keyName=names(sysinfo), value=sysinfo, row.names=NULL)
+
+sysinfo %>% kable()
+```
+
+Analysis was run at **`r Sys.time()`**, and using the following Session Info:
+
+```{r sessioninfo, echo=FALSE, results='markdown', message=FALSE, comment=NA, warning=FALSE}
+sessionInfo()
+```
