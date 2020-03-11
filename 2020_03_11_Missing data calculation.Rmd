@@ -62,7 +62,19 @@ poisson_to_prop <- function(x1,x2){
   prop = x1/(x1 + x2)
 }
 
+relative_riskratio <- function(a,b,c,d){
+  rr = (a/(a+b))/(c/(c+d))
+}
+relative_riskratio_stderror <- function(a,b,c,d){
+  rr_stder = sqrt((1/a) + (1/c) - (1/(a+b)) - (1/(c+d)))
+}
 
+rr_risk_CI <- function(rr,rr_stder){
+  lowerCI = exp(log(rr)-1.96*rr_stder)
+  upperCI = exp(log(rr) + 1.96*rr_stder)
+  
+  list(lowerCI,upperCI)
+}
 ```
 
 <br>
@@ -73,6 +85,16 @@ poisson_to_prop <- function(x1,x2){
 N_total = prop_CI_to_n(0.004,0.005,0.003)
 n_cases = round(N_total*0.004)
 glue::glue("Total number of cases N:{N_total} ", "Number of positive cases n:{n_cases}")
+
+#Calculation for RISK Ratios and RR 
+rr = relative_riskratio(a=8,b=(240-8),c=64, d=(15936-64))
+rr_stder = relative_riskratio_stderror(a=8,b=(240-8),c=64, d=(15936-64))
+
+lowCI_upperCI = rr_risk_CI(rr,rr_stder)
+
+glue::glue("The risk ratio:{rr}, test statistic:{rr/rr_stder}")
+
+glue::glue("The risk ratio:{rr}, 95%CI lowerCI:{lowCI_upperCI[[1]]}, upperCI:{lowCI_upperCI[[2]]}")
 ```
 <br>
 
@@ -82,6 +104,16 @@ glue::glue("Total number of cases N:{N_total} ", "Number of positive cases n:{n_
 N_total = prop_CI_to_n(0.06,0.066,0.056)
 n_cases = round(N_total*0.06)
 glue::glue("Total number of cases N:{N_total} ", "Number of positive cases n:{n_cases}")
+
+#Calculation for RISK Ratios and RR 
+rr = relative_riskratio(a=36,b=(234-36),c=541, d=(9024-541))
+rr_stder = relative_riskratio_stderror(a=36,b=(234-36),c=541, d=(9024-541))
+
+lowCI_upperCI = rr_risk_CI(rr,rr_stder)
+
+glue::glue("The risk ratio:{rr}, test statistic:{rr/rr_stder}")
+
+glue::glue("The risk ratio:{rr}, 95%CI lowerCI:{lowCI_upperCI[[1]]}, upperCI:{lowCI_upperCI[[2]]}")
 ```
 <br>
 
@@ -133,6 +165,15 @@ low_upper_ci = prop_to_CI(prop,prop_std)
 
 glue::glue("The prop%: {100*prop}, lowerCI%: {100*low_upper_ci[[1]]}, upperCI%: {100*low_upper_ci[[2]]}")
 
+#Calculation for RISK Ratios and RR 
+rr = relative_riskratio(a=11,b=(134-11),c=63, d=(1592-63))
+rr_stder = relative_riskratio_stderror(a=11,b=(134-11),c=63, d=(1592-63))
+
+lowCI_upperCI = rr_risk_CI(rr,rr_stder)
+
+glue::glue("The risk ratio:{rr}, test statistic:{rr/rr_stder}")
+
+glue::glue("The risk ratio:{rr}, 95%CI lowerCI:{lowCI_upperCI[[1]]}, upperCI:{lowCI_upperCI[[2]]}")
 
 ```
 
